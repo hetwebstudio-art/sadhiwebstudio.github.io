@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanjaya — AI Automation Agency</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0a0b;
+    --panel:#141416;
+    --line: rgba(255,255,255,0.12);
+    --muted: rgba(255,255,255,0.62);
+    --accent:#e8442f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--ink);}
+  body{
+    font-family:'Inter', sans-serif;
+    color:#fff;
+    overflow-x:hidden;
+  }
+  .font-display{font-family:'Space Grotesk', sans-serif;}
+  .font-mono{font-family:'JetBrains Mono', monospace;}
+
+  .bg-video{
+    position:fixed; inset:0; width:100%; height:100%;
+    object-fit:cover; z-index:0; filter:contrast() brightness(0.);
+  }
+  #bg-video-mobile{ display:block; }
+  #bg-video-desktop{ display:none; }
+  @media (min-width:768px){
+    #bg-video-mobile{ display:none; }
+    #bg-video-desktop{ display:block; }
+  }
+  .hero-h{ min-height:100vh; min-height:100svh; min-height:100dvh; }
+  .bg-scrim{ position:fixed; inset:0; z-index:1; pointer-events:none; }
+  .grain{
+    position:fixed; inset:0; z-index:2; pointer-events:none; opacity:0.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  section, header, footer{position:relative; z-index:3;}
+
+  .rock-silhouette{
+    position:fixed; left:100%; right:0; bottom:0; height:34vh; z-index:2; pointer-events:none;
+  }
+
+  .fade-up{ opacity:0; transform:translateY(24px); animation: fadeUp 0.9s cubic-bezier(.2,.7,.3,1) forwards; }
+  @keyframes fadeUp{ to{ opacity:1; transform:translateY(0);} }
+
+  .marker::before{ content:"/"; color: var(--accent); margin-right:8px; }
+
+  .glass{ background: rgba(20,20,22,0.55); backdrop-filter: blur(14px); border:1px solid var(--line); }
+  .btn-ghost{ background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18); transition: all .25s ease; }
+  .btn-ghost:hover{ background: rgba(255,255,255,0.14); }
+  .btn-accent{ background: var(--accent); transition: all .25s ease; }
+  .btn-accent:hover{ filter:brightness(1.12); transform:translateY(-1px); }
+  .avatar-ring{ background: conic-gradient(from 180deg, var(--accent), #ffb199, var(--accent)); }
+
+  @media (prefers-reduced-motion: reduce){
+    .fade-up{ animation:none !important; opacity:1 !important; transform:none !important; }
+  }
+
+  #mobile-menu{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  #mobile-menu.open{ max-height:420px; }
+
+  .h1-fluid{ font-size:clamp(2.4rem, 9vw, 4.5rem); }
+
+  .stars-bg{
+    background-color:#050403;
+    background-image:
+      radial-gradient(1.5px 1.5px at 10% 20%, rgba(255,255,255,.9), transparent),
+      radial-gradient(1.5px 1.5px at 85% 15%, rgba(255,255,255,.7), transparent),
+      radial-gradient(1px 1px at 25% 70%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1.5px 1.5px at 70% 80%, rgba(255,255,255,.8), transparent),
+      radial-gradient(1px 1px at 92% 55%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 45% 12%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1.5px 1.5px at 55% 92%, rgba(255,255,255,.7), transparent);
+  }
+  .stat-card{ background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)); border:1px solid rgba(255,255,255,0.08); }
+  .stat-visual{ background: #0c0a09; border:1px solid rgba(232,68,47,0.15); }
+  .card-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+  .card-video-scrim{ position:absolute; inset:0; z-index:1; }
+  .tag-pill{ background: rgba(20,14,12,0.85); border:1px solid rgba(232,68,47,0.35); backdrop-filter: blur(4px); }
+  .day-dot{ width:22px; height:22px; border-radius:9999px; background: rgba(255,255,255,0.08); }
+  .day-dot.active{ background: radial-gradient(circle at 35% 30%, #ff8a63, var(--accent)); }
+  .progress-track{ background: rgba(255,255,255,0.08); }
+  .progress-fill{ background: linear-gradient(90deg, var(--accent), #ff9466); }
+
+  .eyebrow-pill{ background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); }
+  .service-tag{ background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); }
+  .btn-outline{ background: transparent; border:1px solid rgba(255,255,255,0.25); transition: all .25s ease; }
+  .btn-outline:hover{ background: rgba(255,255,255,0.08); }
+
+  .icon-tile{ width:64px; height:64px; flex:0 0 auto; background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); }
+  @media (min-width:640px){ .icon-tile{ width:72px; height:72px; } }
+  .pill-glow{ background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); box-shadow: 0 0 24px rgba(232,68,47,0.15); }
+
+  /* ---------- PROJECT / POSTER / VIDEO CARDS ---------- */
+  .project-card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+    border:1px solid rgba(255,255,255,0.1);
+    transition: border-color .25s ease, transform .25s ease;
+  }
+  .project-card:hover{ border-color: rgba(232,68,47,0.45); transform: translateY(-2px); }
+  .project-thumb{
+    aspect-ratio: 6/3;
+    position:relative;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  .project-thumb video, .project-thumb img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;
+  }
+  .project-thumb::after{
+    content:"";
+    position:absolute; inset:0;
+    /* background:linear-gradient(10deg, rgba(0,0,0,0.0), rgba(5,4,3,0.5)); */
+  }
+  .btn-buy{ background: #25D366; transition: all .25s ease; }
+  .btn-buy:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+
+  .play-badge{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10;
+    width:40px; height:40px; border-radius:9999px;
+    background: rgba(10,10,11,0.65); border:1px solid rgba(255,255,255,0.3);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transition: opacity .2s ease;
+  }
+  .project-thumb:hover .play-badge{ opacity:1; }
+
+  /* ---------- founder / about section ---------- */
+  .founder-photo{ aspect-ratio: 3/4; }
+  @media (min-width:768px){ .founder-photo{ aspect-ratio: 4/5; } }
+  .founder-frame{
+    background: conic-gradient(from 200deg, var(--accent), transparent 30%, transparent 70%, var(--accent));
+    padding:3px;
+  }
+
+  /* ---------- feature video split sections ---------- */
+  .feature-video-wrap{ aspect-ratio: 16/10; position:relative; overflow:hidden; }
+  .feature-video-wrap video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+  /* ---------- locations section ---------- */
+  .location-card{ background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); }
+  .location-dot{ width:8px; height:8px; border-radius:9999px; background: var(--accent); box-shadow: 0 0 0 4px rgba(232,68,47,0.18); }
+
+  /* ---------- testimonials ---------- */
+  .quote-card{ background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); }
+
+  /* ---------- contact section ---------- */
+  .input-field{ background: rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); transition: border-color .2s ease, background .2s ease; }
+  .input-field:focus{ outline:none; border-color: var(--accent); background: rgba(255,255,255,0.08); }
+
+ /* modal */
+  #previewModal { transition: opacity .2s ease; }
+  #previewModal.hidden-modal { opacity:0; pointer-events:none; }
+  #previewModal .modal-box { transition: transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s ease; }
+  #previewModal.hidden-modal .modal-box { transform: translateY(16px) scale(.98); opacity:0; }
+  #previewModal .modal-media { max-height: 78vh; }
+
+.faq-item {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.10);
+    transition: border-color .25s ease, background .25s ease;
+  }
+
+  .faq-item:hover {
+    border-color: rgba(232,68,47,0.35);
+    background: rgba(255,255,255,0.045);
+  }
+
+  .faq-question {
+    transition: background .25s ease;
+  }
+
+  .faq-icon {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    transition: transform .3s ease, background .3s ease;
+  }
+
+  .faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .35s ease;
+  }
+
+  .faq-answer p {
+    overflow: hidden;
+    margin: 0;
+    padding: 0 24px;
+    color: rgba(255,255,255,0.58);
+    font-size: 14px;
+    line-height: 1.7;
+    transition: padding .35s ease;
+  }
+
+  .faq-item.active .faq-answer {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-item.active .faq-answer p {
+    padding: 0 24px 22px;
+  }
+
+  .faq-item.active .faq-icon {
+    transform: rotate(45deg);
+    background: rgba(232,68,47,0.15);
+    border-color: rgba(232,68,47,0.4);
+  }
+
+  @media (max-width:640px) {
+    .faq-answer p {
+      padding-left: 20px;
+      padding-right: 20px;
+      font-size: 13px;
+    }
+
+    .faq-item.active .faq-answer p {
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 18px;
+    }
+  }
+
+</style>
+</head>
+<body class="min-h-screen">
+
+<video id="bg-video-mobile" class="bg-video" autoplay muted loop playsinline>
+  <source src="animat/Creating_vertical_showcase_video_202608232356.mp4" type="video/mp4">
+</video>
+<video id="bg-video-desktop" class="bg-video" autoplay muted loop playsinline>
+  <source src="animat/Creating_website_hero_video_202608232142.mp4" type="video/mp4">
+</video>
+<div class="bg-scrim"></div>
+<div class="grain"></div>
+
+<!-- rocky bottom silhouette -->
+<svg class="rock-silhouette" viewBox="0 0 1440 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#050506" d="M0,220 L60,205 L110,225 L170,190 L230,215 L300,175 L360,205 L420,180 L480,210 L540,170 L610,200 L680,160 L740,195 L800,165 L860,200 L930,175 L1000,205 L1070,180 L1140,210 L1210,185 L1280,215 L1360,190 L1440,210 L1440,320 L0,320 Z"/>
+  <path fill="#020202" d="M0,260 L80,245 L150,265 L220,240 L300,260 L380,235 L460,255 L540,230 L620,255 L700,235 L780,258 L860,238 L940,260 L1020,240 L1100,262 L1180,240 L1260,262 L1340,245 L1440,260 L1440,320 L0,320 Z"/>
+</svg>
+
+<!-- NAV -->
+<header class="fixed top-0 left-0 right-0 z-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-4 md:py-5 border-b border-white/10">
+    <div class="flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2.5 font-display font-semibold text-base sm:text-lg tracking-tight shrink-0">
+        <img src="hett1 (2).png" alt="SadhiWebStudio Logo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover shrink-0 border border-white/20">
+        <span>SadhiWebStudio</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-6 lg:gap-8 text-sm text-white/  font-mono">
+        <a href="#projects" style="border-radius: 10px; padding: 5px;" class="hover:text-white transition-colors bg-black/60">Projects</a>
+        <a href="#about" style="border-radius: 10px; padding: 5px;" class="hover:text-white transition-colors bg-black/60">About Us</a>
+       
+        <a href="#contact" style="border-radius: 10px; padding: 5px;" class="hover:text-white transition-colors bg-black/60">Contact</a>
+      </nav>
+
+      <a href="#contact" class="hidden sm:inline-flex btn-ghost rounded-full px-4 py-2 text-xs sm:text-sm font-medium whitespace-nowrap">
+        Get Free Consultation
+      </a>
+
+      <button id="menu-btn" aria-label="Open menu" aria-expanded="false" class="md:hidden btn-ghost rounded-full w-10 h-10 flex items-center justify-center shrink-0">
+        <svg id="menu-icon-open" width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <svg id="menu-icon-close" width="18" height="18" viewBox="0 0 24 24" fill="none" class="hidden">
+          <path d="M6 6l12 12M18 6L6 18" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="mobile-menu" class="md:hidden">
+      <nav class="flex flex-col gap-1 pt-4 pb-2 text-sm font-mono text-white/  text-center">
+        <a href="#projects" style=" border-radius: 10px;" class="py-2 border-b border-white/5 bg-black/90">Projects</a>
+      
+        <a href="#about" style=" border-radius: 10px;" class="py-2 border-b border-white/5 bg-black/90">About Us</a>
+        
+        <a href="#contact" style=" border-radius: 10px;" class="py-2 border-b border-white/5 bg-black/90 ">Contact</a>
+        <a href="#contact" class="mt-3 btn-ghost rounded-full px-4 py-2 text-sm font-medium text-center">Get Free Consultation</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="relative hero-h flex flex-col justify-between px-4 sm:px-6 md:px-10 pt-24 sm:pt-28 pb-6 sm:pb-10">
+  <div class="flex flex-col md:flex-row justify-between gap-4 md:gap-6 fade-up" style="animation-delay:.1s"></div>
+
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
+    <div class="fade-up" style="animation-delay:.35s">
+      <span class="inline-block font-mono text-[10px] sm:text-[11px] tracking-wide uppercase bg-white/10 border border-white/15 rounded-full px-3 py-1 mb-3 sm:mb-4">
+        Digital solutions for modern businesses
+      </span>
+      <h1 class="font-display font-semibold leading-[0.98] sm:leading-[0.95] h1-fluid">
+        Build. Grow.<br/>Your Business.
+      </h1>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-stretch gap-3 fade-up" style="animation-delay:.45s">
+      <div class="glass rounded-2xl p-3 flex items-center gap-3 w-full sm:w-80">
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full avatar-ring p-[2px] shrink-0">
+          <div class="w-full h-full rounded-full bg-[#1c1c1e] flex items-center justify-center font-display text-sm font-semibold">SW</div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-sm leading-tight">Your Digital Growth Partner</p>
+          <p class="font-mono text-[10px] uppercase text-white/50 tracking-wide">Website • Design • Growth</p>
+          <a href="#contact" class="mt-1 inline-flex items-center gap-1 btn-ghost rounded-full px-3 py-1 text-xs">
+            Start Your Project
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M9 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- PROJECTS (PORTFOLIO) SECTION — plain grid, 4 boxes.           -->
+<!-- View All link instead of scroll arrows. No side scroll.       -->
+<!-- ============================================================ -->
+<section id="projects" class="bg-black px-4 sm:px-6 md:px-10 py-16 sm:py-20">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="flex items-center justify-between mb-6 sm:mb-8">
+      <h2 class="font-display font-semibold text-2xl sm:text-3xl md:text-4xl text-white">Website</h2>
+      <a href="#all-projects" class="text-xs sm:text-sm font-medium text-white/70 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+        View All <span class="text-base">→</span>
+      </a>
+    </div>
+
+    <div id="projectsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5"></div>
+
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- POSTERS SECTION — Jewelry only, 4 boxes, plain grid.           -->
+<!-- ============================================================ -->
+<section id="posters" class="bg-black px-4 sm:px-6 md:px-10 py-5 sm:py-1 border-t border-white/10">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="mb-6 sm:mb-8">
+      <div class="flex items-center justify-between">
+        <h2 class="font-display font-semibold text-3xl sm:text-4xl md:text-5xl text-white"><span class="eyebrow-pill inline-flex items-center gap-2 w-fit rounded-full px-3 py-1.5 text-xs font-mono mb-3">
+        <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+        Social Media Posters
+      </span></h2>
+        <a href="#all-posters" class="text-xs sm:text-sm font-medium text-white/70 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          View All <span class="text-base">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div id="posterGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5"></div>
+
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- ANIMATION VIDEOS SECTION — Jewelry only, 4 boxes, plain grid.  -->
+<!-- ============================================================ -->
+<section id="videos" class="bg-black px-4 sm:px-6 md:px-10 py-5 sm:py-1 border-t border-white/10">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="mb-6 sm:mb-8">
+      <div class="flex items-center justify-between">
+        <h2 class="font-display font-semibold text-3xl sm:text-4xl md:text-5xl text-white"> <span class="eyebrow-pill inline-flex items-center gap-2 w-fit rounded-full px-3 py-1.5 text-xs font-mono mb-3">
+        <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+        Animation Videos
+      </span></h2>
+        <a href="product.html#videos" class="text-xs sm:text-sm font-medium text-white/70 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          View All <span class="text-base">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div id="videoGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5"></div>
+
+  </div>
+</section>
+
+
+
+<!-- DIGITAL GROWTH PROBLEM SECTION -->
+<section class="stars-bg px-4 sm:px-6 md:px-10 py-16 sm:py-24">
+  <div class="max-w-5xl mx-auto text-center mb-12 sm:mb-16">
+    <h2 class="font-display font-bold leading-[1.05] text-3xl sm:text-4xl md:text-5xl">
+      Your business deserves<br/>a stronger digital presence.
+    </h2>
+    <p class="mt-5 max-w-xl mx-auto text-sm sm:text-base text-white/60 leading-relaxed">
+      From professional websites to social media content and digital growth,
+      we help your business look better, reach more customers, and grow online.
+    </p>
+  </div>
+
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5">
+
+    <div class="stat-card rounded-2xl p-4 sm:p-5">
+      <div class="stat-visual relative rounded-xl h-48 overflow-hidden">
+        <video class="card-video" autoplay muted loop playsinline>
+          <source src="animat/het1 (4).mp4" type="video/mp4">
+        </video>
+        <div class="card-video-scrim"></div>
+        <div class="relative z-10 p-4 h-full flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <span class="tag-pill text-[10px] font-mono px-2 py-1 rounded-full">WEBSITE</span>
+            <span class="tag-pill text-[10px] font-mono px-2 py-1 rounded-full">01</span>
+          </div>
+          <div>
+            <p class="font-display font-bold text-3xl">ONLINE</p>
+            <p class="font-mono text-[10px] uppercase text-white/60 tracking-wide">Your Digital Storefront</p>
+          </div>
+        </div>
+      </div>
+      <h3 class="font-semibold text-base mt-4 mb-1.5">Build a Website That Sells</h3>
+      <p class="text-sm text-white/55 leading-relaxed">
+        We create modern, responsive websites that showcase your products,
+        services, and brand professionally across every device.
+      </p>
+    </div>
+
+    <div class="stat-card rounded-2xl p-4 sm:p-5">
+      <div class="stat-visual relative rounded-xl h-48 overflow-hidden">
+        <video class="card-video" autoplay muted loop playsinline>
+          <source src="animat/het 1 (2).mp4" type="video/mp4">
+        </video>
+        <div class="card-video-scrim"></div>
+        <div class="relative z-10 p-4 h-full flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <span class="tag-pill text-[10px] font-mono px-2 py-1 rounded-full flex items-center gap-1">SOCIAL MEDIA</span>
+            <span class="tag-pill text-[10px] font-mono px-2 py-1 rounded-full">02</span>
+          </div>
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="font-display font-bold text-2xl">CONTENT</p>
+              <p class="font-mono text-[10px] uppercase text-white/60 tracking-wide">Posters • Reels • Animation</p>
+            </div>
+            <span class="tag-pill text-[10px] font-mono px-2 py-1 rounded-full">BRAND</span>
+          </div>
+        </div>
+      </div>
+      <h3 class="font-semibold text-base mt-4 mb-1.5">Make Your Brand Stand Out</h3>
+      <p class="text-sm text-white/55 leading-relaxed">
+        We create premium posters, reels, animation videos, and social media
+        creatives that make your business look professional online.
+      </p>
+    </div>
+
+    <div class="stat-card rounded-2xl p-4 sm:p-5">
+      <div class="stat-visual relative rounded-xl h-48 overflow-hidden">
+        <video class="card-video" autoplay muted loop playsinline>
+          <source src="animat/het 1 (1).mp4" type="video/mp4">
+        </video>
+        <div class="card-video-scrim"></div>
+        <div class="relative z-10 p-4 h-full flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <span class="tag-pill text-[10px] font-mono px-2 py-1 rounded-full">GROWTH</span>
+            <span class="tag-pill text-[10px] font-mono px-2 py-1 rounded-full">03</span>
+          </div>
+          <div>
+            <p class="font-display font-bold text-3xl">GROW</p>
+            <p class="font-mono text-[10px] uppercase text-white/60 tracking-wide">Reach • Engage • Convert</p>
+          </div>
+        </div>
+      </div>
+      <h3 class="font-semibold text-base mt-4 mb-1.5">Turn Online Presence Into Growth</h3>
+      <p class="text-sm text-white/55 leading-relaxed">
+        We help you understand how to reach more people online, improve your
+        digital presence, attract customers, and grow your business.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- FOUNDER / ABOUT SECTION                                        -->
+<!-- ============================================================ -->
+<section id="about" class="bg-black px-4 sm:px-6 md:px-10 py-16 sm:py-24 border-t border-white/10">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[minmax(0,340px)_1fr] gap-8 md:gap-14 items-center">
+    <div class="founder-frame rounded-2xl mx-auto md:mx-0 w-48 sm:w-56 md:w-full">
+      <div class="founder-photo rounded-2xl overflow-hidden bg-[#141416] relative">
+        <img src="het11.jpeg" alt="Founder portrait" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="hidden w-full h-full items-center justify-center absolute inset-0" style="background:linear-gradient(160deg,#1c1c1e,#0e0e10)">
+          <span class="font-display text-5xl font-bold text-white/20">S</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center md:text-left">
+      <span class="eyebrow-pill inline-flex items-center gap-2 w-fit mx-auto md:mx-0 rounded-full px-3 py-1.5 text-xs font-mono mb-5">
+        <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+        Who's Behind This
+      </span>
+      <h2 class="font-display font-semibold text-3xl sm:text-4xl md:text-5xl leading-tight mb-3">HET SOLANKI</h2>
+      <p class="font-mono text-xs sm:text-sm text-white/50 uppercase tracking-wide mb-5">Founder & Lead Developer</p>
+      <p class="text-sm sm:text-base text-white/60 leading-relaxed max-w-xl mx-auto md:mx-0 mb-4">
+        I design and build fast, good-looking websites and web apps for small
+        businesses and founders — from banking-style landing pages to full
+        product dashboards. Every project on this page is real, built end to
+        end, and ready to be customised with your content.
+      </p>
+      <p class="text-sm sm:text-base text-white/60 leading-relaxed max-w-xl mx-auto md:mx-0 mb-4">
+        Alongside the website, I also create the content that runs your
+        Instagram & Facebook — professional-grade animated promo videos,
+        reels and posters — designed with the same quality and finish as the
+        website itself, so your brand looks consistent everywhere people find you.
+      </p>
+      <p class="text-sm sm:text-base text-white/60 leading-relaxed max-w-xl mx-auto md:mx-0 mb-6">
+        Pick a project you like, preview it live, and message me on WhatsApp
+        to make it yours.
+      </p>
+      <div class="flex flex-wrap justify-center md:justify-start gap-2.5">
+        <span class="service-tag rounded-full px-4 py-2 text-xs sm:text-sm">Web Design</span>
+        <span class="service-tag rounded-full px-4 py-2 text-xs sm:text-sm">Automation</span>
+        <span class="service-tag rounded-full px-4 py-2 text-xs sm:text-sm">UI/UX</span>
+        <span class="service-tag rounded-full px-4 py-2 text-xs sm:text-sm">Full-Stack</span>
+        <span class="service-tag rounded-full px-4 py-2 text-xs sm:text-sm">Instagram & FB Content</span>
+        <span class="service-tag rounded-full px-4 py-2 text-xs sm:text-sm">Animated Posters</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE SPLIT 1 -->
+<section class="bg-black px-4 sm:px-6 md:px-10 py-14 sm:py-20 border-t border-white/10">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+    <div class="feature-video-wrap rounded-2xl border border-white/10 order-1">
+      <video autoplay muted loop playsinline>
+        <source src="animat/about (2).mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="order-2 text-center md:text-left">
+      <span class="eyebrow-pill inline-flex items-center gap-2 w-fit mx-auto md:mx-0 rounded-full px-3 py-1.5 text-xs font-mono mb-5">
+        <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+        Design Process
+      </span>
+      <h3 class="font-display font-semibold text-3xl sm:text-4xl leading-tight mb-4">
+        Built for the way<br class="hidden sm:block"/> people actually use it
+      </h3>
+      <p class="text-sm sm:text-base text-white/60 leading-relaxed max-w-md mx-auto md:mx-0">
+        Every layout is designed mobile-first, then scaled up — so buttons,
+        cards and text stay comfortable to tap and read on any screen size.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE SPLIT 2 -->
+<section class="bg-black px-4 sm:px-6 md:px-10 py-14 sm:py-20 border-t border-white/10">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+    <div class="order-2 md:order-1 text-center md:text-left">
+      <span class="eyebrow-pill inline-flex items-center gap-2 w-fit mx-auto md:mx-0 rounded-full px-3 py-1.5 text-xs font-mono mb-5">
+        <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+        Delivery
+      </span>
+      <h3 class="font-display font-semibold text-3xl sm:text-4xl leading-tight mb-4">
+        From "Buy Now" to<br class="hidden sm:block"/> your own domain
+      </h3>
+      <p class="text-sm sm:text-base text-white/60 leading-relaxed max-w-md mx-auto md:mx-0">
+        Message me on WhatsApp after picking a project, and I'll walk you
+        through customisation, hosting and going live — no back-and-forth
+        over email needed.
+      </p>
+    </div>
+    <div class="feature-video-wrap rounded-2xl border border-white/10 order-1 md:order-2">
+      <video autoplay muted loop playsinline>
+        <source src="animat/about (1).mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section>
+
+
+<!-- LOCATIONS -->
+<section id="locations" class="bg-black px-4 sm:px-6 md:px-10 py-16 sm:py-24 border-t border-white/10">
+  <div class="max-w-6xl mx-auto text-center mb-10 sm:mb-14">
+    <span class="eyebrow-pill inline-flex items-center gap-2 w-fit mx-auto rounded-full px-3 py-1.5 text-xs font-mono mb-5">
+      <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+      Where We Work
+    </span>
+    <h2 class="font-display font-semibold text-4xl sm:text-5xl leading-none mb-4">Locations</h2>
+    <p class="text-sm sm:text-base text-white/60 leading-relaxed max-w-xl mx-auto">
+      Based in Gujarat, working with clients across India — remotely, on call, or on site.
+    </p>
+  </div>
+
+  <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+    <div class="location-card rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="location-dot"></span>
+        <p class="font-mono text-[11px] uppercase tracking-wide text-white/50">Headquarters</p>
+      </div>
+      <h3 class="font-display font-semibold text-lg mb-1">Bharuch, Gujarat</h3>
+      <p class="text-sm text-white/55 leading-relaxed">Core team & project delivery, available for on-site meetings.</p>
+    </div>
+    <div class="location-card rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="location-dot"></span>
+        <p class="font-mono text-[11px] uppercase tracking-wide text-white/50">Serving</p>
+      </div>
+      <h3 class="font-display font-semibold text-lg mb-1">Ahmedabad & Surat</h3>
+      <p class="text-sm text-white/55 leading-relaxed">Regular client visits and support across Gujarat.</p>
+    </div>
+    <div class="location-card rounded-2xl p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="location-dot"></span>
+        <p class="font-mono text-[11px] uppercase tracking-wide text-white/50">Remote</p>
+      </div>
+      <h3 class="font-display font-semibold text-lg mb-1">Pan-India</h3>
+      <p class="text-sm text-white/55 leading-relaxed">Every project on this page can be delivered fully remote over WhatsApp & call.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- TESTIMONIALS -->
+<section class="bg-black px-4 sm:px-6 md:px-10 py-16 sm:py-24 border-t border-white/10">
+  <div class="max-w-6xl mx-auto text-center mb-10 sm:mb-14">
+    <span class="eyebrow-pill inline-flex items-center gap-2 w-fit mx-auto rounded-full px-3 py-1.5 text-xs font-mono mb-5">
+      <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+      Client Feedback
+    </span>
+    <h2 class="font-display font-semibold text-4xl sm:text-5xl leading-none">What Clients Say</h2>
+  </div>
+
+  <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+    <div class="quote-card rounded-2xl p-5">
+      <div class="flex gap-0.5 mb-3 text-[var(--accent)]">★★★★★</div>
+      <p class="text-sm text-white/70 leading-relaxed mb-4">"Bought the SaaS dashboard template — delivered fast and looked exactly like the live preview. Great to work with."</p>
+      <p class="font-semibold text-sm">Rahul Mehta</p>
+      <p class="font-mono text-[11px] text-white/45">Startup Founder</p>
+    </div>
+    <div class="quote-card rounded-2xl p-5">
+      <div class="flex gap-0.5 mb-3 text-[var(--accent)]">★★★★★</div>
+      <p class="text-sm text-white/70 leading-relaxed mb-4">"Simple WhatsApp process — sent one message and had the whole thing set up on my domain within days."</p>
+      <p class="font-semibold text-sm">Priya Shah</p>
+      <p class="font-mono text-[11px] text-white/45">Restaurant Owner</p>
+    </div>
+    <div class="quote-card rounded-2xl p-5">
+      <div class="flex gap-0.5 mb-3 text-[var(--accent)]">★★★★★</div>
+      <p class="text-sm text-white/70 leading-relaxed mb-4">"Mobile responsiveness was exactly what I needed — the site looks great on every phone I tested it on."</p>
+      <p class="font-semibold text-sm">Aman Verma</p>
+      <p class="font-mono text-[11px] text-white/45">Real Estate Agent</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- FAQ SECTION -->
+<!-- ============================================================ -->
+<section id="faq" class="bg-black px-4 sm:px-6 md:px-10 py-16 sm:py-24 border-t border-white/10">
+  <div class="max-w-5xl mx-auto">
+
+    <!-- FAQ HEADER -->
+    <div class="text-center mb-10 sm:mb-14">
+      <span class="eyebrow-pill inline-flex items-center gap-2 w-fit mx-auto rounded-full px-3 py-1.5 text-xs font-mono mb-5">
+        <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+        FAQ
+      </span>
+
+      <h2 class="font-display font-semibold text-4xl sm:text-5xl leading-tight">
+        Frequently Asked Questions
+      </h2>
+
+      <p class="mt-4 text-sm sm:text-base text-white/60 leading-relaxed max-w-xl mx-auto">
+        Everything you need to know about our websites, posters,
+        animation videos and digital services.
+      </p>
+    </div>
+
+    <a href="#faq"
+   style="border-radius: 10px; padding: 5px;"
+   class="hover:text-white transition-colors bg-black/60">
+   FAQ
+</a>
+    <!-- FAQ LIST -->
+    <div class="space-y-3">
+
+      <!-- FAQ 1 -->
+      <div class="faq-item rounded-2xl overflow-hidden">
+        <button
+          class="faq-question w-full flex items-center justify-between gap-4 text-left px-5 sm:px-6 py-5"
+          onclick="toggleFAQ(this)"
+        >
+          <span class="font-display font-medium text-sm sm:text-base">
+            What services does Sadhi Web Studio provide?
+          </span>
+
+          <span class="faq-icon shrink-0 w-8 h-8 rounded-full flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14"
+                    stroke="white"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <div class="faq-answer">
+          <p>
+            We provide professional websites, UI/UX design, social media
+            posters, reels, animation videos and digital growth solutions
+            for businesses and brands.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="faq-item rounded-2xl overflow-hidden">
+        <button
+          class="faq-question w-full flex items-center justify-between gap-4 text-left px-5 sm:px-6 py-5"
+          onclick="toggleFAQ(this)"
+        >
+          <span class="font-display font-medium text-sm sm:text-base">
+            Can you create a website for my business?
+          </span>
+
+          <span class="faq-icon shrink-0 w-8 h-8 rounded-full flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14"
+                    stroke="white"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <div class="faq-answer">
+          <p>
+            Yes. We create modern, responsive and mobile-friendly websites
+            for jewellery stores, restaurants, real estate, fashion,
+            services, startups and other businesses.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="faq-item rounded-2xl overflow-hidden">
+        <button
+          class="faq-question w-full flex items-center justify-between gap-4 text-left px-5 sm:px-6 py-5"
+          onclick="toggleFAQ(this)"
+        >
+          <span class="font-display font-medium text-sm sm:text-base">
+            How long does it take to build a website?
+          </span>
+
+          <span class="faq-icon shrink-0 w-8 h-8 rounded-full flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14"
+                    stroke="white"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <div class="faq-answer">
+          <p>
+            The timeline depends on the project. A simple business website
+            can usually be completed faster, while larger websites with
+            custom features may take more time.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ 4 -->
+      <div class="faq-item rounded-2xl overflow-hidden">
+        <button
+          class="faq-question w-full flex items-center justify-between gap-4 text-left px-5 sm:px-6 py-5"
+          onclick="toggleFAQ(this)"
+        >
+          <span class="font-display font-medium text-sm sm:text-base">
+            Will my website work on mobile phones?
+          </span>
+
+          <span class="faq-icon shrink-0 w-8 h-8 rounded-full flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14"
+                    stroke="white"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <div class="faq-answer">
+          <p>
+            Yes. Every website is designed to be responsive so it looks
+            clean and works properly on mobile, tablet and desktop screens.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ 5 -->
+      <div class="faq-item rounded-2xl overflow-hidden">
+        <button
+          class="faq-question w-full flex items-center justify-between gap-4 text-left px-5 sm:px-6 py-5"
+          onclick="toggleFAQ(this)"
+        >
+          <span class="font-display font-medium text-sm sm:text-base">
+            Can I get posters and animation videos for Instagram?
+          </span>
+
+          <span class="faq-icon shrink-0 w-8 h-8 rounded-full flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14"
+                    stroke="white"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <div class="faq-answer">
+          <p>
+            Yes. We create promotional posters, reels and animation videos
+            designed specifically for Instagram, Facebook and other social
+            media platforms.
+          </p>
+        </div>
+      </div>
+
+      <!-- FAQ 6 -->
+      <div class="faq-item rounded-2xl overflow-hidden">
+        <button
+          class="faq-question w-full flex items-center justify-between gap-4 text-left px-5 sm:px-6 py-5"
+          onclick="toggleFAQ(this)"
+        >
+          <span class="font-display font-medium text-sm sm:text-base">
+            How do I start my project?
+          </span>
+
+          <span class="faq-icon shrink-0 w-8 h-8 rounded-full flex items-center justify-center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14"
+                    stroke="white"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <div class="faq-answer">
+          <p>
+            Simply contact us on WhatsApp, tell us about your business and
+            what you need. We'll discuss the project, requirements and next
+            steps with you.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FAQ CTA -->
+    <div class="mt-10 text-center">
+      <p class="text-sm text-white/50 mb-4">
+        Still have a question?
+      </p>
+
+      <button
+        onclick="buyOnWhatsApp('a custom project')"
+        class="btn-buy inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
+      >
+        Chat With Us on WhatsApp
+        <span>→</span>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- CONTACT -->
+<section id="contact" class="bg-black px-4 sm:px-6 md:px-10 py-16 sm:py-24 border-t border-white/10">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
+    <div>
+      <span class="eyebrow-pill inline-flex items-center gap-2 w-fit rounded-full px-3 py-1.5 text-xs font-mono mb-6">
+        <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent)"></span>
+        Get In Touch
+      </span>
+      <h2 class="font-display font-semibold text-4xl sm:text-5xl leading-none mb-5">Contact</h2>
+      <p class="text-sm sm:text-base text-white/60 leading-relaxed max-w-md mb-8">
+        Have a project in mind, or want to buy one from the list above?
+        Message us directly and we'll get back within a few hours.
+      </p>
+
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full btn-ghost flex items-center justify-center shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6l9 7 9-7" stroke="white" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="4" width="18" height="16" rx="2" stroke="white" stroke-width="1.5"/></svg>
+          </div>
+          <p class="text-sm text-white/70 font-mono">hello@sanjaya.dev</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full btn-ghost flex items-center justify-center shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.1.2-.3.2-.5.1-1.4-.7-2.3-1.2-3.2-2.8-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.3-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.4 3.8 3.4 1.4.6 2 .6 2.7.5.4-.1 1.3-.5 1.5-1 .2-.5.2-.9.1-1z" fill="white"/></svg>
+          </div>
+          <p class="text-sm text-white/70 font-mono">+91 12345 67890</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full btn-ghost flex items-center justify-center shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11.5A7 7 0 105 9.5C5 14.8 12 21 12 21z" stroke="white" stroke-width="1.5"/><circle cx="12" cy="9.5" r="2.3" stroke="white" stroke-width="1.5"/></svg>
+          </div>
+          <p class="text-sm text-white/70 font-mono">Bharuch, Gujarat, India</p>
+        </div>
+      </div>
+
+      <button onclick="buyOnWhatsApp('a custom')" class="mt-8 btn-buy inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.1.2-.3.2-.5.1-1.4-.7-2.3-1.2-3.2-2.8-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.3-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.4 3.8 3.4 1.4.6 2 .6 2.7.5.4-.1 1.3-.5 1.5-1 .2-.5.2-.9.1-1z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.4.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4.1 14.7 3.7 13.4 3.7 12c0-4.6 3.7-8.3 8.3-8.3s8.3 3.7 8.3 8.3-3.7 8.3-8.3 8.3z"/></svg>
+        Chat on WhatsApp
+      </button>
+    </div>
+
+    <form class="glass rounded-2xl p-5 sm:p-6 flex flex-col gap-4" onsubmit="return false;">
+      <div>
+        <label class="font-mono text-[11px] uppercase tracking-wide text-white/50 mb-1.5 block">Name</label>
+        <input type="text" placeholder="Your full name" class="input-field w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30">
+      </div>
+      <div>
+        <label class="font-mono text-[11px] uppercase tracking-wide text-white/50 mb-1.5 block">Email</label>
+        <input type="email" placeholder="you@example.com" class="input-field w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30">
+      </div>
+      <div>
+        <label class="font-mono text-[11px] uppercase tracking-wide text-white/50 mb-1.5 block">Message</label>
+        <textarea rows="4" placeholder="Tell us about your project..." class="input-field w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 resize-none"></textarea>
+      </div>
+      <button type="submit" class="btn-accent rounded-full px-5 py-2.5 text-sm font-medium">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-black px-4 sm:px-6 md:px-10 py-10 border-t border-white/10">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <a href="#" class="flex items-center gap-2 font-display font-semibold text-base tracking-tight">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="4" stroke="white" stroke-width="1.4"/><path d="M7 9h10M7 12h6M7 15h10" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+      sanjaya
+    </a>
+    <p class="font-mono text-xs text-white/40">© 2026 Sanjaya. All rights reserved.</p>
+    <div class="flex items-center gap-3">
+      <a href="#" class="w-8 h-8 rounded-full btn-ghost flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M22 12a10 10 0 10-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0022 12z"/></svg></a>
+      <a href="#" class="w-8 h-8 rounded-full btn-ghost flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M18.9 3H21l-6.6 7.5L22.2 21h-6.4l-5-6.6L4.9 21H2.8l7-8L1.8 3h6.5l4.5 6 6.1-6z"/></svg></a>
+      <a href="#" class="w-8 h-8 rounded-full btn-ghost flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.1.2-.3.2-.5.1-1.4-.7-2.3-1.2-3.2-2.8-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.3-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.4 3.8 3.4 1.4.6 2 .6 2.7.5.4-.1 1.3-.5 1.5-1 .2-.5.2-.9.1-1z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4c1.4.8 3.1 1.2 4.8 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4.1 14.7 3.7 13.4 3.7 12c0-4.6 3.7-8.3 8.3-8.3s8.3 3.7 8.3 8.3-3.7 8.3-8.3 8.3z"/></svg></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================ -->
+<!-- PREVIEW MODAL — shared by Posters and Animation Videos.       -->
+<!-- ============================================================ -->
+<div id="previewModal" class="hidden-modal fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8" style="background:rgba(4,4,5,0.88); backdrop-filter:blur(6px);" onclick="if(event.target===this) closePreview();">
+  <div class="modal-box glass rounded-2xl w-full max-w-2xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-white/10">
+      <p id="modalTitle" class="font-display font-semibold text-sm sm:text-base truncate pr-4">Preview</p>
+      <button onclick="closePreview()" aria-label="Close preview" class="btn-ghost rounded-full w-8 h-8 flex items-center justify-center shrink-0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="modalMediaWrap" class="modal-media bg-black flex items-center justify-center"></div>
+    <div class="px-4 sm:px-5 py-3.5 border-t border-white/10 flex items-center justify-between gap-3">
+      <p id="modalPrice" class="font-mono text-xs text-white/50"></p>
+      <button id="modalBuyBtn" class="btn-buy rounded-full text-xs sm:text-sm font-semibold py-2 px-4 flex items-center justify-center gap-1.5 shrink-0">
+        Buy Now
+      </button>
+    </div>
+  </div>
+</div>
+  
+
+<script>
+
+/* background videos + mobile nav (unchanged) */
+(function(){
+  const videos = [
+    document.getElementById('bg-video-mobile'),
+    document.getElementById('bg-video-desktop'),
+    ...document.querySelectorAll('.card-video'),
+    ...document.querySelectorAll('.feature-video-wrap video'),
+    ...document.querySelectorAll('.project-thumb video')
+  ];
+  videos.forEach(v => {
+    if (!v) return;
+    v.addEventListener('error', () => console.warn((v.id || v.currentSrc || 'a video') + ' not found — add the matching mp4 next to index.html.'));
+  });
+  document.addEventListener('click', () => { videos.forEach(v => v && v.play().catch(()=>{})); }, { once:true });
+})();
+
+(function(){
+  const btn = document.getElementById('menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+  if (!btn || !menu) return;
+  function closeMenu(){
+    menu.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    iconOpen.classList.remove('hidden');
+    iconClose.classList.add('hidden');
+  }
+  function toggleMenu(){
+    const isOpen = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(isOpen));
+    iconOpen.classList.toggle('hidden', isOpen);
+    iconClose.classList.toggle('hidden', !isOpen);
+  }
+  btn.addEventListener('click', toggleMenu);
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  window.addEventListener('resize', () => { if (window.innerWidth >= 768) closeMenu(); });
+})();
+
+/* Buy Now -> WhatsApp
+   IMPORTANT: replace the phone number below with your real WhatsApp
+   number, international format, no + no spaces no dashes. */
+function buyOnWhatsApp(projectName){
+  const phone = "911234567890"; // <-- REPLACE with your real WhatsApp number
+  const message = "Hi, I am interested to buy your " + projectName + " project.";
+  const url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+  window.open(url, "_blank");
+}
+
+/* ============================================================
+   DATA — 4 boxes each. Replace image / video urls & prices with
+   your real assets.
+   ============================================================ */
+const websites = [
+  { name:"Jewelry web Site", price:"₹8,999", tag:"Banking UI", img:"assets/image/jwalary/Screenshot 2026-09-04 223256.png", link:"https://hetsolanki-1610.github.io/mobile.github.io/" },
+  { name:"Solar Panel web site", price:"₹6,499", tag:"E-commerce", img:"assets/image/solar/het.png", link:"#" },
+  { name:"Backry web site", price:"₹7,999", tag:"Dashboard", img:"assets/image/cake/Screenshot 2026-09-06 221927.png", link:"#" },
+  { name:"Fast-Food web site", price:"₹5,999", tag:"Real Estate", img:"assets/image/food/Screenshot 2026-09-07 220721.png", link:"#" },
+];
+
+const posters = [
+  { name:"Diwali Jewelry Sale",      price:"₹499", tag:"Festival", img:"assets/poster/jwalary/img  (4).png" },
+  { name:"Solar Poster", price:"₹599", tag:"Bridal",   img:"assets/poster/solar/poster (1).png" },
+  { name:"Fast-Food Poster",  price:"₹399", tag:"Offer",    img:"assets/poster/food/poster (2).png" },
+  { name:"Bakery Poster",      price:"₹499", tag:"Launch",   img:"assets/poster/cake/poster (3).png" },
+];
+
+const videosData = [
+  { name:"Jewelry Collection Reel", price:"₹1,299", tag:"Reel",   thumb:"https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=700&q=80", src:"assets/video/jwalary/Jewelry_advertisement_festival_c…_202608230118.mp4" },
+  { name:"Gold Offer Animation",    price:"₹999",   tag:"Offer",  thumb:"https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=700&q=80", src:"assets/video/solar/solar 2.mp4" },
+  { name:"Bridal Jewelry Promo",    price:"₹1,499", tag:"Bridal", thumb:"https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=700&q=80", src:"assets/video/food/Crispy_chicken_burger_advertisement_202609041945.mp4" },
+  { name:"New Arrivals Video",      price:"₹1,299", tag:"Launch", thumb:"https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=700&q=80", src:"assets/video/cake/cake 1.mp4" },
+];
+
+function websiteCardHTML(item){
+  return `
+  <div class="project-card rounded-xl sm:rounded-2xl overflow-hidden flex flex-col">
+    <div class="project-thumb" style="background:linear-gradient(135deg,#1a1a1e,#2a1512)">
+      <img src="${item.img}" alt="${item.name}" onerror="this.style.display='none';">
+      <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 tag-pill text-[8px] sm:text-[10px] font-mono px-2 py-1 rounded-full">${item.tag}</span>
+    </div>
+    <div class="p-2 sm:p-3.5 flex flex-col flex-1">
+      <h3 class="font-semibold text-[11px] sm:text-sm leading-snug mb-1">${item.name}</h3>
+      <p class="font-mono text-[9px] sm:text-xs text-white/50 mb-2 sm:mb-3">${item.price}</p>
+      <div class="mt-auto flex flex-col gap-1.5 sm:gap-2">
+        <a href="${item.link}" target="_blank" rel="noopener" class="btn-outline rounded-full text-center text-[9px] sm:text-xs font-medium py-1.5 sm:py-2">Live Preview</a>
+        <button onclick="buyOnWhatsApp('${item.name.replace(/'/g, "\\'")}')" class="btn-buy rounded-full text-center text-[9px] sm:text-xs font-semibold py-1.5 sm:py-2">Buy Now</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   FIX: video cards now render an actual <video autoplay muted
+   loop playsinline> element instead of a static thumbnail image,
+   so the video plays directly inside the card on the page.
+   Poster cards keep using a static image as before.
+   ============================================================ */
+function mediaCardHTML(item, kind, index){
+  const isVideo = kind === 'video';
+
+  const mediaTag = isVideo
+    ? `<video src="${item.src}" autoplay muted loop playsinline></video>`
+    : `<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none';">`;
+
+  const playBadge = '<div class="play-badge"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+
+  return `
+  <div class="project-card rounded-xl sm:rounded-2xl overflow-hidden flex flex-col">
+    <div class="project-thumb" style="background:linear-gradient(135deg,#1a1a1e,#141414)" onclick="openPreview('${kind}', ${index})">
+      ${mediaTag}
+      <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 tag-pill text-[8px] sm:text-[10px] font-mono px-2 py-1 rounded-full">${item.tag}</span>
+      ${playBadge}
+    </div>
+    <div class="p-2 sm:p-3.5 flex flex-col flex-1">
+      <h3 class="font-semibold text-[11px] sm:text-sm leading-snug mb-1">${item.name}</h3>
+      <p class="font-mono text-[9px] sm:text-xs text-white/50 mb-2 sm:mb-3">${item.price}</p>
+      <div class="mt-auto flex flex-col gap-1.5 sm:gap-2">
+        <button onclick="openPreview('${kind}', ${index})" class="btn-outline rounded-full text-center text-[9px] sm:text-xs font-medium py-1.5 sm:py-2">Preview</button>
+        <button onclick="buyOnWhatsApp('${item.name.replace(/'/g, "\\'")}')" class="btn-buy rounded-full text-center text-[9px] sm:text-xs font-semibold py-1.5 sm:py-2">Buy Now</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+document.getElementById('projectsGrid').innerHTML = websites.map(w => websiteCardHTML(w)).join('');
+document.getElementById('posterGrid').innerHTML = posters.map((p,i) => mediaCardHTML(p,'poster',i)).join('');
+document.getElementById('videoGrid').innerHTML = videosData.map((v,i) => mediaCardHTML(v,'video',i)).join('');
+
+/* Make sure freshly-injected card videos also try to autoplay
+   (some browsers need this nudge after dynamic insertion). */
+document.querySelectorAll('.project-thumb video').forEach(v => {
+  v.play().catch(() => {});
+});
+
+/* ---------- preview modal logic ---------- */
+const modal = document.getElementById('previewModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMediaWrap = document.getElementById('modalMediaWrap');
+const modalPrice = document.getElementById('modalPrice');
+const modalBuyBtn = document.getElementById('modalBuyBtn');
+
+function openPreview(kind, index){
+  const item = kind === 'poster' ? posters[index] : videosData[index];
+  modalTitle.textContent = item.name;
+  modalPrice.textContent = item.price;
+
+  if (kind === 'poster'){
+    modalMediaWrap.innerHTML = `<img src="${item.img}" alt="${item.name}" class="modal-media w-full h-auto object-contain">`;
+  } else {
+    modalMediaWrap.innerHTML = `<video class="modal-media w-full h-auto" src="${item.src}" controls autoplay playsinline></video>`;
+  }
+
+  modalBuyBtn.onclick = () => buyOnWhatsApp(item.name);
+  modal.classList.remove('hidden-modal');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePreview(){
+  modal.classList.add('hidden-modal');
+  document.body.style.overflow = '';
+  const vid = modalMediaWrap.querySelector('video');
+  if (vid) vid.pause();
+  setTimeout(() => { modalMediaWrap.innerHTML = ''; }, 200);
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePreview(); });
+
+ function toggleFAQ(button) {
+    const item = button.closest('.faq-item');
+    const allItems = document.querySelectorAll('.faq-item');
+
+    allItems.forEach(faq => {
+      if (faq !== item) {
+        faq.classList.remove('active');
+      }
+    });
+
+    item.classList.toggle('active');
+  }
+</script>
+
+</body>
+</html>
